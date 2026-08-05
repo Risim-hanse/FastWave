@@ -7,7 +7,7 @@ name = "fastwave"
 version = "0.1.0"
 description = "Official implementation of FastWave: Efficient waveform super-resolution based on Score-based Generative Models."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.15"
 license = { text = "MIT" }
 keywords = ["audio", "super-resolution", "score-based", "generative-models", "waveform"]
 classifiers = [
@@ -22,24 +22,35 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Multimedia :: Sound/Audio",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-  # core
-  "torch==2.2.0",
-  "torchvision==0.17.0",
-  "numpy==1.26.4",
-  "scipy==1.11.4",
-  "pandas==1.5.3",
+  # torch: cp313 wheels start at 2.6, cp314 at 2.9
+  "torch>=2.2.0,<2.6; python_version < '3.13'",
+  "torch>=2.6.0,<2.9; python_version == '3.13'",
+  "torch>=2.9.0; python_version >= '3.14'",
+  "torchvision>=0.17.0",
+  # numpy: cp313+ needs numpy 2.x
+  "numpy>=1.24.4,<2.0; python_version < '3.12'",
+  "numpy>=2.1.0; python_version >= '3.12'",
+  # scipy: cp312+ needs newer builds
+  "scipy>=1.11.0,<2.0; python_version < '3.12'",
+  "scipy>=1.14.0; python_version >= '3.12'",
+  # pandas: cp312+ needs pandas 2.x+
+  "pandas>=1.5.3,<3.0; python_version < '3.12'",
+  "pandas>=2.0.0; python_version >= '3.12'",
   # audio
-  "librosa",
-  "soundfile",
+  "librosa>=0.11.0",
+  "soundfile>=0.12.0",
+  # numba: explicit floor to avoid stale llvmlite on py3.12+
+  "numba>=0.60.0; python_version >= '3.12'",
   # config / logging
-  "hydra-core",
-  "omegaconf",
-  "tqdm",
-  "matplotlib",
+  "hydra-core>=1.3",
+  "omegaconf>=2.3",
+  "tqdm>=4.60",
+  "matplotlib>=3.7",
   "wandb",
   "comet_ml",
 ]
@@ -60,7 +71,7 @@ include = ["src*"]
 
 [tool.black]
 line-length = 100
-target-version = ["py39", "py310", "py311", "py312", "py313"]
+target-version = ["py39", "py310", "py311", "py312", "py313", "py314"]
 
 [tool.isort]
 profile = "black"
