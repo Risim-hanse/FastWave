@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastwave"
+version = "0.1.0"
+description = "Official implementation of FastWave: Efficient waveform super-resolution based on Score-based Generative Models."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["audio", "super-resolution", "score-based", "generative-models", "waveform"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Sound/Audio",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  # core
+  "torch==2.2.0",
+  "torchvision==0.17.0",
+  "numpy==1.26.4",
+  "scipy==1.11.4",
+  "pandas==1.5.3",
+  # audio
+  "librosa",
+  "soundfile",
+  # config / logging
+  "hydra-core",
+  "omegaconf",
+  "tqdm",
+  "matplotlib",
+  "wandb",
+  "comet_ml",
+]
+
+[project.optional-dependencies]
+download = [
+  "gdown>=5.0.0",
+]
+dev = [
+  "black",
+  "isort",
+  "pre-commit",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312", "py313"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+src_paths = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
