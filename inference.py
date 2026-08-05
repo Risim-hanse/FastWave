@@ -36,8 +36,6 @@ def main(config):
 
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
-    bad_model = instantiate(config.model).to(device)
-    #print(model)
 
     # get metrics
     metrics = instantiate(config.metrics)
@@ -48,7 +46,7 @@ def main(config):
 
     inferencer = Inferencer(
         model=model,
-        bad_model = None,
+        bad_model=None,
         config=config,
         device=device,
         dataloaders=dataloaders,
@@ -68,4 +66,3 @@ def main(config):
 
 if __name__ == "__main__":
     main()
-
