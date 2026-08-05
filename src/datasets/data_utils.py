@@ -3,7 +3,7 @@ from os import path
 import random
 import numpy as np
 import torch
-import librosa as rosa
+import soundfile as sf
 
 from glob import glob
 from torch.utils.data import Dataset, DataLoader
@@ -87,7 +87,10 @@ class VCTKMultiSpkDataset(Dataset):
         return len(self.data_list)
 
     def __getitem__(self, index):
-        wav, _ = rosa.load(path=self.data_list[index], sr=self.hparams.audio.sampling_rate)
+        wav, file_sr = sf.read(self.data_list[index])
+        if file_sr != self.hparams.audio.sampling_rate:
+            g = np.gcd(file_sr, self.hparams.audio.sampling_rate)
+            wav = resample_poly(wav, self.hparams.audio.sampling_rate // g, file_sr // g)
         wav /= np.max(np.abs(wav))
 
         if wav.shape[0] < self.hparams.audio.length:

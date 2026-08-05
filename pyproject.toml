@@ -42,10 +42,7 @@ dependencies = [
   "pandas>=1.5.3,<3.0; python_version < '3.12'",
   "pandas>=2.0.0; python_version >= '3.12'",
   # audio
-  "librosa>=0.11.0",
   "soundfile>=0.12.0",
-  # numba: explicit floor to avoid stale llvmlite on py3.12+
-  "numba>=0.60.0; python_version >= '3.12'",
   # config / logging
   "hydra-core>=1.3",
   "omegaconf>=2.3",
@@ -56,9 +53,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-download = [
-  "gdown>=5.0.0",
-]
 dev = [
   "black",
   "isort",
@@ -84,4 +78,3 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
-

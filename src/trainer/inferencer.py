@@ -1,4 +1,3 @@
-import librosa as rosa
 import numpy as np
 import matplotlib.pyplot as plt
 import soundfile as sf
@@ -162,7 +161,7 @@ class Inferencer(BaseTrainer):
             ax = plt.subplot(6, 1, i + 1)
             ax.set_title(name_list[i])
             plt.imshow(
-                rosa.amplitude_to_db(mag, ref=np.max, top_db=80.),
+                np.maximum(20 * np.log10(mag / (np.max(mag) + 1e-10)), -80),
                 vmax=0.0,
                 aspect='auto',
                 origin='lower',

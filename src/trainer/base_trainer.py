@@ -6,7 +6,6 @@ import time
 from numpy import inf
 from torch.nn.utils import clip_grad_norm_
 from tqdm.auto import tqdm
-import librosa as rosa
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -321,9 +320,9 @@ class BaseTrainer:
                             )
 
                         mag_ref = self._stft_mag(torch.from_numpy(ref_np[i])[None]).squeeze(0).numpy()
-                        db_ref  = rosa.amplitude_to_db(mag_ref, ref=np.max, top_db=80.)
+                        db_ref  = np.maximum(20 * np.log10(mag_ref / (np.max(mag_ref) + 1e-10)), -80)
                         mag_pred= self._stft_mag(torch.from_numpy(pred_np[i])[None]).squeeze(0).numpy()
-                        db_pred = rosa.amplitude_to_db(mag_pred, ref=np.max, top_db=80.)
+                        db_pred = np.maximum(20 * np.log10(mag_pred / (np.max(mag_pred) + 1e-10)), -80)
                         for label, db in [('ref', db_ref), ('pred', db_pred)]:
                             img_key = f"{part}/epoch_{epoch}/{label}_spectrogram_{i}"
                             fig, ax = plt.subplots(figsize=(4, 3))

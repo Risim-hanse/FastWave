@@ -4,7 +4,6 @@ import random
 from glob import glob
 
 import hydra
-import librosa as rosa
 import numpy as np
 import soundfile as sf
 import torch
@@ -361,7 +360,13 @@ def process_single_file(
     """
 
     # 1) Грузим target HR в output_sr
-    wav_hr, _ = rosa.load(input_path, sr=output_sr, mono=True)
+    wav_hr, file_sr = sf.read(input_path)
+    if wav_hr.ndim > 1:
+        wav_hr = wav_hr.mean(axis=1)
+    if file_sr != output_sr:
+        from math import gcd
+        g = gcd(file_sr, output_sr)
+        wav_hr = resample_poly(wav_hr, output_sr // g, file_sr // g)
     wav_hr = wav_hr.astype(np.float32)
     wav_hr = wav_hr / (np.max(np.abs(wav_hr)) + 1e-8)
 

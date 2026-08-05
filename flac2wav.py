@@ -1,4 +1,4 @@
-import librosa as rosa
+import soundfile as sf
 from scipy.io.wavfile import write as swrite
 from omegaconf import OmegaConf as OC
 import os
@@ -8,7 +8,14 @@ import multiprocessing as mp
 
 
 def flac2wav(wav):
-    y,_ = rosa.load(wav, sr = hparams.audio.sampling_rate, mono = True)
+    y, file_sr = sf.read(wav)
+    if y.ndim > 1:
+        y = y.mean(axis=1)
+    if file_sr != hparams.audio.sampling_rate:
+        from scipy.signal import resample_poly
+        from math import gcd
+        g = gcd(file_sr, hparams.audio.sampling_rate)
+        y = resample_poly(y, hparams.audio.sampling_rate // g, file_sr // g)
     file_id = os.path.split(wav)[-1].split('_mic')[0]
     if file_id in timestamps:
         start, end = timestamps[file_id]
