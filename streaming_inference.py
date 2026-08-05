@@ -9,6 +9,7 @@ import soundfile as sf
 import torch
 import torch.nn.functional as F
 from scipy.signal import resample_poly
+from src.utils.degradation import degrade_signal
 from tqdm.auto import tqdm
 
 from src.utils.init_utils import set_random_seed
@@ -154,15 +155,10 @@ def resample_exact(wav: np.ndarray, orig_sr: int, target_sr: int, target_len: in
     return out
 
 
-def make_low_quality_condition(wav_hr: np.ndarray, output_sr: int, input_sr: int) -> np.ndarray:
-    """
-    Правильная логика для этой модели:
-    hr@48k -> downsample до input_sr -> upsample обратно до output_sr.
-    На вход модели идёт low-quality сигнал ТОЙ ЖЕ ДЛИНЫ в сэмплах, что и hr target.
-    """
-    wav_l = resample_exact(wav_hr, output_sr, input_sr)
-    wav_l_up = resample_exact(wav_l, input_sr, output_sr, target_len=len(wav_hr))
-    return wav_l_up
+def make_low_quality_condition(wav_hr: np.ndarray, output_sr: int, input_sr: int, order: int = 8, ripple: float = 0.05) -> np.ndarray:
+    """Degrade HR audio to match training pipeline: Chebyshev lowpass -> downsample -> upsample."""
+    highcut = input_sr // 2
+    return degrade_signal(wav_hr, highcut, sr=output_sr, order=order, ripple=ripple)
 
 
 def build_regular_chunks(signal_1d: torch.Tensor, chunk_size: int, hop_size: int):

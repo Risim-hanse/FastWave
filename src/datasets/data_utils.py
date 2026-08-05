@@ -8,7 +8,8 @@ import soundfile as sf
 from glob import glob
 from torch.utils.data import Dataset, DataLoader
 from src.utils.init_utils import set_worker_seed
-from scipy.signal import sosfiltfilt, cheby1, resample_poly
+from src.utils.degradation import degrade_signal, build_band_mask
+from scipy.signal import resample_poly
 
 
 import torch
@@ -115,27 +116,17 @@ class VCTKMultiSpkDataset(Dataset):
             elif self.cv == 2:
                 highcut = self.sr // 2
 
-        nyq = 0.5 * self.hparams.audio.sampling_rate
-        hi = highcut / nyq
-
-        if hi == 1:
-            wav_l = wav
-        else:
-            sos = cheby1(order, ripple, hi, btype='lowpass', output='sos')
-            wav_l = sosfiltfilt(sos, wav)
-
-            # downsample to the low sampling rate
-            wav_l = resample_poly(wav_l, highcut * 2, self.hparams.audio.sampling_rate)
-            # upsample to the original sampling rate
-            wav_l = resample_poly(wav_l, self.hparams.audio.sampling_rate, highcut * 2)
-
-        if len(wav_l) < len(wav):
-            wav_l = np.pad(wav, (0, len(wav) - len(wav_l)), 'constant', constant_values=0)
-        elif len(wav_l) > len(wav):
-            wav_l = wav_l[:len(wav)]
-
+        sr = self.hparams.audio.sampling_rate
         fft_size = self.hparams.audio.filter_length // 2 + 1
-        band = torch.zeros(fft_size, dtype = torch.int64)
+
+        if highcut >= sr // 2:
+            wav_l = wav
+            hi = 1.0
+        else:
+            wav_l = degrade_signal(wav, highcut, sr, order=order, ripple=ripple)
+            _, hi = build_band_mask(highcut, sr, fft_size)
+
+        band = torch.zeros(fft_size, dtype=torch.int64)
         band[:int(hi * fft_size)] = 1
 
         return {
@@ -151,7 +142,6 @@ def inf_loop(dataloader):
     """ Infinite dataloader loop for iteration-based training. """
     for loader in repeat(dataloader):
         yield from loader
-
 
 
 
