@@ -153,11 +153,6 @@ def inf_loop(dataloader):
         yield from loader
 
 
-def move_batch_transforms_to_device(batch_transforms, device):
-    for transform_type, transforms in batch_transforms.items():
-        if transforms is not None:
-            for name in transforms:
-                transforms[name] = transforms[name].to(device)
 
 
 def get_dataloaders(config, device):
